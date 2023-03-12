@@ -1,0 +1,69 @@
+# text mining 
+getwd()
+hulutitlesraw <- read.csv("hulu_titles.csv", stringsAsFactors = TRUE)
+head(hulutitlesraw)
+
+precorpus1 <- subset(hulutitlesraw,select = c(show_id,listed_in,date_added))
+colnames(precorpus1) <- c("ID","TitleType","Date Added")
+
+precorpus1$TitleType <- gsub("'", "", precorpus1$TitleType) # remove apostrophes
+precorpus1$TitleType <- gsub("[[:punct:]]", " ", precorpus1$TitleType)  # replace punctuation with space
+precorpus1$TitleType <- gsub("[[:cntrl:]]", " ", precorpus1$TitleType)  # replace control characters with space
+precorpus1$TitleType <- gsub("^[[:space:]]+", "", precorpus1$TitleType) # remove whitespace at beginning of documents
+precorpus1$TitleType <- gsub("[[:space:]]+$", "", precorpus1$TitleType) # remove whitespace at end of documents
+precorpus1$TitleType <- gsub("[^a-zA-Z -]", " ", precorpus1$TitleType) # allows only letters
+precorpus1$TitleType <- tolower(precorpus1$TitleType)  # force to lowercase
+head(precorpus1$TitleType)
+library(quanteda)
+dfm.simple1<- dfm(precorpus1$TitleType,
+                  remove = stopwords("english"),
+                  verbose=TRUE,
+                  stem=FALSE)
+
+topfeatures(dfm.simple1, n=50)
+
+
+# create a custom dictonary
+swlist1 = c("late")
+
+dfm1<- dfm(precorpus1$TitleType,
+           remove = c(swlist1,stopwords("english")),
+           verbose=TRUE,
+           stem=FALSE)
+
+topfeatures(dfm1, n=70)
+
+
+dfm.stem1<- dfm(precorpus1$TitleType,
+                remove = c(swlist1,stopwords("english")),
+                verbose=TRUE,
+                stem=TRUE)
+
+data.frame(topfeatures(dfm.stem1, n=50))
+
+#update for bigrans using tokens
+toks.1<-tokens(precorpus1$TitleType)   #creates tokens
+toks.2<-tokens_remove(toks.1, stopwords("english"))  #remove stopwords from tokens
+toks.3 <-tokens_ngrams(toks.2, n=2) # ngram =2
+dfm.ngram2<- dfm(toks.3, verbose=TRUE)
+
+topfeatures(dfm.ngram2, n=50)
+
+#exploration in context
+kwic(speechcorpus, "hot", 2)
+
+kwic(speechcorpus , "data", window = 3)
+
+
+#########################
+### WORD CLOUD ########
+#########################
+library(wordcloud)
+set.seed(142)   #keeps cloud' shape fixed
+dark2 <- brewer.pal(8, "Set1")   
+freq<-topfeatures(dfm.stem1, n=500)
+
+wordcloud(names(freq), 
+          freq, max.words=500, 
+          scale=c(5, .5), 
+          colors=brewer.pal(8, "Set1"))

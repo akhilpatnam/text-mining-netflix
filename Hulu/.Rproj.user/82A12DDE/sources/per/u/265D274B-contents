@@ -1,0 +1,19 @@
+getwd()
+setwd("C:/Users/akhil/OneDrive/Documents/Project 3/Hulu/hulu_titles_new")
+library(tidyverse)
+install.packages("stringr")  # Install & load stringr
+library("stringr")
+
+#hulu titles
+hulu_titles=read.csv("hulu_titles.csv")
+
+#some of the durations are mentioned in the ratings section
+hulu_titles$duration_temp <- as.character(hulu_titles$rating)
+
+
+hulu_titles$duration_temp <- str_detect(hulu_titles$duration_temp, "min")        # Apply str_detect function
+# TRUE
+
+write.csv(hulu_titles,"hulu_corrected.csv")
+
+

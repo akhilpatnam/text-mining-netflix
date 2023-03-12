@@ -1,0 +1,18 @@
+getwd()
+setwd("C:/Users/akhil/OneDrive/Documents/Project 3/duration datasets")
+
+disney_plus_titles=read.csv("disney_plus_titles.csv")
+hulu_titles=read.csv("hulu_titles_durationcorrected.csv")
+
+hulu_titles=hulu_titles[-which(hulu_titles$duration==''),] #duration
+disney_plus_titles=disney_plu_titles[-which(disney_plus_titles$duration==''),] #duration
+
+hulu_titles <- subset(hulu_titles,select=c(duration,typeOfPeriod))
+disney_plus_titles <- subset(disney_plus_titles,select=c(duration,typeOfPeriod))
+
+library(ggplot2)
+huludurationdata <- as.data.frame(table(hulu_titles))
+# Basic barplot
+p <- ggplot(data=Monthdata, aes(x=Var1, y=Freq)) + 
+  geom_bar(stat="identity",fill = "red")
+p + theme(axis.text.x = element_text(angle = 90, hjust = 1))

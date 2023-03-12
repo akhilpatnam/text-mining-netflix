@@ -1,0 +1,194 @@
+library(tidyverse)
+install.packages("stringr")  # Install & load stringr
+library("stringr")
+
+getwd()
+setwd("C:/Users/akhil/OneDrive/Documents/Project 3/Netflix")
+
+#netflix titles
+netflix_titles_1=read.csv("netflix_titles.csv")
+
+netflix_titles=read.csv("netflix_titles.csv")
+
+#########################################################################################################################################
+## Text mining ####FOR GOOD TITLES NETFLIX###############################################################################################
+#########################################################################################################################################
+netflix_titles_good <- subset(netflix_titles, typeOfPeriod == "good") 
+netflix_precorpus1 <- subset(netflix_titles_good,select = c(show_id,listed_in))
+colnames(netflix_precorpus1) <- c("ID","TitleType")
+
+netflix_precorpus1$TitleType <- gsub("'", "", netflix_precorpus1$TitleType) # remove apostrophes
+netflix_precorpus1$TitleType <- gsub("[[:punct:]]", " ", netflix_precorpus1$TitleType)  # replace punctuation with space
+netflix_precorpus1$TitleType <- gsub("[[:cntrl:]]", " ", netflix_precorpus1$TitleType)  # replace control characters with space
+netflix_precorpus1$TitleType <- gsub("^[[:space:]]+", "", netflix_precorpus1$TitleType) # remove whitespace at beginning of documents
+netflix_precorpus1$TitleType <- gsub("[[:space:]]+$", "", netflix_precorpus1$TitleType) # remove whitespace at end of documents
+netflix_precorpus1$TitleType <- gsub("[^a-zA-Z -]", " ", netflix_precorpus1$TitleType) # allows only letters
+netflix_precorpus1$TitleType <- tolower(netflix_precorpus1$TitleType)  # force to lowercase
+head(netflix_precorpus1$TitleType)
+library(quanteda)
+netflix_dfm.simple1<- dfm(netflix_precorpus1$TitleType,
+                       remove = stopwords("english"),
+                       verbose=TRUE,
+                       stem=FALSE)
+
+topfeatures(netflix_dfm.simple1, n=50)
+
+
+# create a custom dictonary
+netflix_swlist1 = c("tv","movi*","show*","fi","scienc*","seri*")
+
+netflix_dfm1<- dfm(netflix_precorpus1$TitleType,
+                remove = c(netflix_swlist1,stopwords("english")),
+                verbose=TRUE,
+                stem=FALSE)
+
+topfeatures(netflix_dfm1, n=70)
+
+
+topfeatures_goodnf <- as.data.frame(topfeatures(netflix_dfm1, n=100))
+write.csv(topfeatures_goodnf,"topfeatures_goodnetflix.csv")
+
+
+#update for bigrans using tokens
+netflix_toks.1<-tokens(netflix_precorpus1$TitleType)   #creates tokens
+netflix_toks.2<-tokens_remove(netflix_toks.1, stopwords("english"))  #remove stopwords from tokens
+netflix_toks.3 <-tokens_ngrams(netflix_toks.2, n=2) # ngram =2
+netflix_dfm.ngram1<- dfm(netflix_toks.3, verbose=TRUE)
+
+topfeatures(netflix_dfm.ngram1, n=100)
+
+
+
+#########################
+### WORD CLOUD ########
+#########################
+library(wordcloud)
+set.seed(142)   #keeps cloud' shape fixed
+netflix_freq1 <-topfeatures(netflix_dfm1, n=500)
+
+wordcloud(names(netflix_freq1), 
+          netflix_freq1, max.words=500, 
+          scale=c(6, .6), 
+          color = "#E50914")
+
+########################################################################################################################################
+## Text mining ####For BAD Titles netflix###############################################################################################
+########################################################################################################################################
+netflix_titles_bad <- subset(netflix_titles, typeOfPeriod == "bad") 
+netflix_precorpus2 <- subset(netflix_titles_bad,select = c(show_id,listed_in,date_added))
+colnames(netflix_precorpus2) <- c("ID","TitleType")
+
+netflix_precorpus2$TitleType <- gsub("'", "", netflix_precorpus2$TitleType) # remove apostrophes
+netflix_precorpus2$TitleType <- gsub("[[:punct:]]", " ", netflix_precorpus2$TitleType)  # replace punctuation with space
+netflix_precorpus2$TitleType <- gsub("[[:cntrl:]]", " ", netflix_precorpus2$TitleType)  # replace control characters with space
+netflix_precorpus2$TitleType <- gsub("^[[:space:]]+", "", netflix_precorpus2$TitleType) # remove whitespace at beginning of documents
+netflix_precorpus2$TitleType <- gsub("[[:space:]]+$", "", netflix_precorpus2$TitleType) # remove whitespace at end of documents
+netflix_precorpus2$TitleType <- gsub("[^a-zA-Z -]", " ", netflix_precorpus2$TitleType) # allows only letters
+netflix_precorpus2$TitleType <- tolower(netflix_precorpus2$TitleType)  # force to lowercase
+head(netflix_precorpus2$TitleType)
+library(quanteda)
+netflix_dfm.simple2<- dfm(netflix_precorpus2$TitleType,
+                       remove = stopwords("english"),
+                       verbose=TRUE,
+                       stem=FALSE)
+
+topfeatures(netflix_dfm.simple2, n=50)
+
+
+# create a custom dictonary
+netflix_swlist2 = c("tv","movi*","docuseri*","fi","classic","seri*","show*","featur*","talk","docuseri*","languag*","faith")
+
+netflix_dfm2<- dfm(netflix_precorpus2$TitleType,
+                remove = c(netflix_swlist2,stopwords("english")),
+                verbose=TRUE,
+                stem=FALSE)
+
+topfeatures(netflix_dfm2, n=70)
+
+topfeatures_badnf <- as.data.frame(topfeatures(netflix_dfm2, n=100))
+write.csv(topfeatures_badnf,"topfeatures_badnetflix.csv")
+
+
+#update for bigrans using tokens
+netflix_toks2.1<-tokens(netflix_precorpus2$TitleType)   #creates tokens
+netflix_toks2.2<-tokens_remove(netflix_toks2.1, stopwords("english"))  #remove stopwords from tokens
+netflix_toks2.3 <-tokens_ngrams(netflix_toks2.2, n=2) # ngram =2
+netflix_dfm.ngram2<- dfm(netflix_toks2.3, verbose=TRUE)
+
+topfeatures(netflix_dfm.ngram2, n=100)
+
+
+#########################
+### WORD CLOUD ########
+#########################
+library(wordcloud)
+set.seed(142)   #keeps cloud' shape fixed
+netflix_freq2 <-topfeatures(netflix_dfm2, n=500)
+
+wordcloud(names(netflix_freq2), 
+          netflix_freq2, max.words=500, 
+          scale=c(6, .6), 
+          color = "#E50914")
+
+###########################################################################################################################################
+## Text mining ####For NEUTRAL Titles netflix##############################################################################################
+###########################################################################################################################################
+netflix_titles_neutral <- subset(netflix_titles, typeOfPeriod == "neutral") 
+netflix_precorpus3 <- subset(netflix_titles_neutral,select = c(show_id,listed_in,date_added))
+colnames(netflix_precorpus3) <- c("ID","TitleType")
+
+netflix_precorpus3$TitleType <- gsub("'", "", netflix_precorpus3$TitleType) # remove apostrophes
+netflix_precorpus3$TitleType <- gsub("[[:punct:]]", " ", netflix_precorpus3$TitleType)  # replace punctuation with space
+netflix_precorpus3$TitleType <- gsub("[[:cntrl:]]", " ", netflix_precorpus3$TitleType)  # replace control characters with space
+netflix_precorpus3$TitleType <- gsub("^[[:space:]]+", "", netflix_precorpus3$TitleType) # remove whitespace at beginning of documents
+netflix_precorpus3$TitleType <- gsub("[[:space:]]+$", "", netflix_precorpus3$TitleType) # remove whitespace at end of documents
+netflix_precorpus3$TitleType <- gsub("[^a-zA-Z -]", " ", netflix_precorpus3$TitleType) # allows only letters
+netflix_precorpus3$TitleType <- tolower(netflix_precorpus3$TitleType)  # force to lowercase
+head(netflix_precorpus3$TitleType)
+library(quanteda)
+netflix_dfm.simple3<- dfm(netflix_precorpus3$TitleType,
+                          remove = stopwords("english"),
+                          verbose=TRUE,
+                          stem=FALSE)
+
+topfeatures(netflix_dfm.simple3, n=50)
+
+
+# create a custom dictonary
+netflix_swlist3 = c("tv","movi*","show","docuseri*","fi","classic","seri*","show","featur*","talk")
+
+netflix_dfm3<- dfm(netflix_precorpus3$TitleType,
+                   remove = c(netflix_swlist3,stopwords("english")),
+                   verbose=TRUE,
+                   stem=FALSE)
+
+topfeatures(netflix_dfm3, n=70)
+
+
+netflix_dfm.stem3<- dfm(netflix_precorpus3$TitleType,
+                        remove = c(netflix_swlist3,stopwords("english")),
+                        verbose=TRUE,
+                        stem=TRUE)
+
+data.frame(topfeatures(netflix_dfm.stem3, n=50))
+
+#update for bigrans using tokens
+netflix_toks3.1<-tokens(netflix_precorpus3$TitleType)   #creates tokens
+netflix_toks3.2<-tokens_remove(netflix_toks3.1, stopwords("english"))  #remove stopwords from tokens
+netflix_toks3.3 <-tokens_ngrams(netflix_toks3.2, n=2) # ngram =2
+netflix_dfm.ngram3<- dfm(netflix_toks3.3, verbose=TRUE)
+
+topfeatures(netflix_dfm.ngram3, n=100)
+
+
+#########################
+### WORD CLOUD ########
+#########################
+library(wordcloud)
+set.seed(142)   #keeps cloud' shape fixed
+netflix_freq3 <-topfeatures(netflix_dfm.stem3, n=500)
+
+wordcloud(names(netflix_freq3), 
+          netflix_freq3, max.words=500, 
+          scale=c(6, .6), 
+          color="#E50914")

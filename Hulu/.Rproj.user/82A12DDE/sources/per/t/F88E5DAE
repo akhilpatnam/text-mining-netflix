@@ -1,0 +1,28 @@
+{
+    "id": "F88E5DAE",
+    "path": null,
+    "project_path": null,
+    "type": "object_explorer",
+    "hash": "0",
+    "contents": "",
+    "dirty": false,
+    "created": 1651690732075.0,
+    "source_on_save": false,
+    "relative_order": 13,
+    "properties": {
+        "id": "d35a0f8982294ab4b9db82b6eefc84a8",
+        "name": "netflix_dfm3",
+        "title": "netflix_dfm3",
+        "language": "R",
+        "source_window_id": "",
+        "Source": "Source"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 2314885530818453536,
+    "encoding": "",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1651690732075,
+    "read_only": false,
+    "read_only_alternatives": []
+}
